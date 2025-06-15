@@ -17,6 +17,8 @@ type User struct {
 	// Password string `json:"-" gorm:"not null"`
 	Password string `gorm:"not null"`
 	IsAdmin  bool   `json:"is_admin" gorm:"not null;default:false"`
+
+	CodeSnippets []CodeSnippet `json:"code_snippets"` // one-to-many
 }
 
 func (User) TableName() string {

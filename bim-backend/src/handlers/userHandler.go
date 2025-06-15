@@ -84,5 +84,5 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 	db.DB.Delete(&models.User{}, id)
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, gin.H{"message": "Code snippet deleted!"})
 }

@@ -41,13 +41,24 @@ func Init() {
 	log.Println("Database connected successfully!")
 
 	// --- DEV ONLY !!! --------------------------
+	// drop and migrate table user
 	err = DB.Migrator().DropTable(&models.User{})
 	if err != nil {
 		log.Fatal("Failed to drop table users: ", err)
 	}
 
 	err = DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatal("Failed to migrate database: ", err)
+	}
 
+	// drop and migrate table codeSnippets
+	err = DB.Migrator().DropTable(&models.CodeSnippet{})
+	if err != nil {
+		log.Fatal("Failed to drop table code_snippets: ", err)
+	}
+
+	err = DB.AutoMigrate(&models.CodeSnippet{})
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
