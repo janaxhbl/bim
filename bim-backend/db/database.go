@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/janaxhbl/bim/bim-backend/db/models"
+	"golang.org/x/crypto/bcrypt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -45,11 +46,35 @@ func Init() {
 		log.Fatal("Failed to drop table users: ", err)
 	}
 
-	// --- DEV ONLY END !!! ----------------------
-
 	err = DB.AutoMigrate(&models.User{})
 
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
+
+	createAdminUser()
+	// --- DEV ONLY END !!! ----------------------
+}
+
+// --- DEV ONLY !!! ------------------------------
+func createAdminUser() {
+	hashPw, err := bcrypt.GenerateFromPassword([]byte("Aa1!Aa1!"), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal("Failed to create admin user!")
+		return
+	}
+
+	user := models.User{
+		UserName: "admin",
+		Email:    "admin@mail.com",
+		Password: string(hashPw),
+		IsAdmin:  true,
+	}
+
+	result := DB.Create(&user)
+	if result.Error != nil {
+		log.Fatal("Create admin error: ", result.Error.Error())
+		return
+	}
+	log.Print("Created admin user successfully!")
 }

@@ -16,6 +16,7 @@ type User struct {
 	Email    string `json:"email" gorm:"unique;not null"`
 	// Password string `json:"-" gorm:"not null"`
 	Password string `gorm:"not null"`
+	IsAdmin  bool   `json:"is_admin" gorm:"not null;default:false"`
 }
 
 func (User) TableName() string {
