@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/janaxhbl/bim/bim-backend/db"
@@ -54,7 +53,6 @@ func CreateUser(c *gin.Context) {
 	user.Password = string(hashPw)
 
 	result := db.DB.Create(&user)
-	fmt.Println("Create result error:", result.Error)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
