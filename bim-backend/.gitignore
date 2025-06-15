@@ -1,0 +1,20 @@
+# Go build outputs
+*.exe
+*.out
+*.test
+bin/
+
+# Dependency vendor directory (if used)
+vendor/
+
+# PostgreSQL dump files
+*.sql
+*.dump
+*.log
+
+# Editor/IDE
+.vscode/
+*.swp
+
+# CERTIFICATES
+*.pem
