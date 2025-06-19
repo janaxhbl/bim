@@ -1,0 +1,11 @@
+create_table("code_snippets") {
+	t.Column("id", "integer", {primary: true, "autoincrement": true})
+	t.Column("title", "string", {})
+	t.Column("language", "string", {"null": true})
+	t.Column("code", "string", {})
+	t.Column("is_private", "bool", {"default": false})
+	t.Column("user_id", "integer", {})
+	t.Timestamps()
+}
+
+raw(`ALTER TABLE code_snippets ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);`)
