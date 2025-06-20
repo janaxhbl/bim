@@ -30,3 +30,7 @@ generated/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+
+# CERTIFICATES
+*.pem
