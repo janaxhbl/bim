@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"log"
+	"net/http"
 	"sync"
 
 	"bim_backend_buffalo/locales"
@@ -14,7 +16,6 @@ import (
 	"github.com/gobuffalo/middleware/i18n"
 	"github.com/gobuffalo/middleware/paramlogger"
 	"github.com/gobuffalo/x/sessions"
-	"github.com/rs/cors"
 	"github.com/unrolled/secure"
 )
 
@@ -46,10 +47,7 @@ func App() *buffalo.App {
 		app = buffalo.New(buffalo.Options{
 			Env:          ENV,
 			SessionStore: sessions.Null{},
-			PreWares: []buffalo.PreWare{
-				cors.Default().Handler,
-			},
-			SessionName: "_bim_backend_buffalo_session",
+			SessionName:  "_bim_backend_buffalo_session",
 		})
 
 		// Automatically redirect to SSL
@@ -57,6 +55,9 @@ func App() *buffalo.App {
 
 		// Log request parameters (filters apply).
 		app.Use(paramlogger.ParameterLogger)
+
+		// Use cors middleware
+		app.Use(CORSMiddleware)
 
 		// Set the request content type to JSON
 		app.Use(contenttype.Set("application/json"))
@@ -71,10 +72,19 @@ func App() *buffalo.App {
 		// Public routes
 		app.POST("/register", Register)
 		app.POST("/login", Login)
+		app.OPTIONS("/{path:.+}", func(c buffalo.Context) error {
+			log.Println("OPTIONS fallback triggered")
+			return c.Render(204, nil)
+		})
 
 		// Protected routes
 		api := app.Group("/api")
 		api.Use(JWTHandler)
+
+		api.GET("/cors-test", func(c buffalo.Context) error {
+			log.Println("cors test successfull")
+			return c.Render(200, r.JSON(map[string]string{"status": "ok"}))
+		})
 
 		api.Resource("/users", UsersResource{})
 		api.Resource("/code_snippets", CodeSnippetsResource{})
@@ -106,4 +116,23 @@ func forceSSL() buffalo.MiddlewareFunc {
 		SSLRedirect:     ENV == "production",
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
+}
+
+func CORSMiddleware(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+
+		res := c.Response()
+		req := c.Request()
+
+		res.Header().Set("Access-Control-Allow-Origin", "https://localhost:4200")
+		res.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		res.Header().Set("Vary", "Origin")
+		res.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if req.Method == http.MethodOptions {
+			return c.Render(http.StatusNoContent, nil)
+		}
+		return next(c)
+	}
 }

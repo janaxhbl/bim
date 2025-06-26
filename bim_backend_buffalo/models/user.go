@@ -18,7 +18,7 @@ type User struct {
 
 	UserName string `json:"user_name" db:"user_name"`
 	Email    string `json:"email" db:"email"`
-	Password string `json:"-" db:"password"`
+	Password string `json:"password" db:"password"`
 	IsAdmin  bool   `json:"is_admin" db:"is_admin"`
 
 	CodeSnippets []CodeSnippet `has_many:"code_snippets"`

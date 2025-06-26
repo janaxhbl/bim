@@ -20,6 +20,11 @@ func Register(c buffalo.Context) error {
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Invalid input"}))
 	}
 
+	// Set UserName if null
+	if user.UserName == "" {
+		user.UserName = user.Email
+	}
+
 	// Hash password before saving
 	hashPw, err := models.HashPassword(user.Password)
 	if err != nil {
@@ -37,7 +42,12 @@ func Register(c buffalo.Context) error {
 		return c.Render(http.StatusBadRequest, r.JSON(verrs))
 	}
 
-	return c.Render(http.StatusCreated, r.JSON(user))
+	// return c.Render(http.StatusCreated, r.JSON(user))
+	return c.Render(http.StatusCreated, r.JSON(map[string]interface{}{
+		"id":       user.ID,
+		"username": user.UserName,
+		"email":    user.Email,
+	}))
 }
 
 func Login(c buffalo.Context) error {
@@ -55,11 +65,11 @@ func Login(c buffalo.Context) error {
 	user := &models.User{}
 	err := tx.Where("email = ?", input.Email).First(user)
 	if err != nil {
-		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Invalid credentials"}))
+		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Invalid credentials (user)"}))
 	}
 
 	if !models.ComparePasswordHash(user.Password, input.Password) {
-		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Invalid credentials"}))
+		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Invalid credentials (password)"}))
 	}
 
 	token, err := GenerateToken(user.ID)

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
+	"net/http"
+	"time"
 
 	"bim_backend_buffalo/actions"
 )
@@ -14,9 +17,30 @@ import (
 // application that is. :)
 func main() {
 	app := actions.App()
-	if err := app.Serve(); err != nil {
-		log.Fatal(err)
+
+	if actions.ENV == "development" {
+		server := &http.Server{
+			Addr:         ":3000",
+			Handler:      app,
+			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 15 * time.Second,
+			TLSConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+			},
+		}
+
+		log.Println("Server running in devmode...")
+		err := server.ListenAndServeTLS("./cert/localhost+1.pem", "./cert/localhost+1-key.pem")
+		if err != nil {
+			log.Fatal("Server failed to start:", err)
+			return
+		}
+	} else {
+		if err := app.Serve(); err != nil {
+			log.Fatal(err)
+		}
 	}
+
 }
 
 /*
