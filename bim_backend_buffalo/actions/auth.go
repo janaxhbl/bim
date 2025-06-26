@@ -77,7 +77,7 @@ func Login(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Failed to generate token"}))
 	}
 
-	return c.Render(http.StatusOK, r.JSON(map[string]string{"token": token}))
+	return c.Render(http.StatusOK, r.JSON(map[string]interface{}{"token": token, "email": user.Email, "id": user.ID}))
 
 }
 
