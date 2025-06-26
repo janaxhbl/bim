@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title routerLink="home">BIM</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="code-snippets">Snippets</ion-button>
+      <ion-button routerLink="login">Login</ion-button>
+      <!-- <ion-button routerLink="settings">Settings</ion-button> -->
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-router-outlet></ion-router-outlet>
+</ion-content>

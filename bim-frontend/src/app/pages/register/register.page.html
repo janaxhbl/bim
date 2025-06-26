@@ -1,0 +1,31 @@
+<ion-content [fullscreen]="true">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title size="large">register</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <h1 class="title">Create new Account</h1>
+
+  <form [formGroup]="registerFormGroup" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <ion-item class="input-item">
+        <ion-input type="text" formControlName="username" label="Username" labelPlacement="floating"></ion-input>
+      </ion-item>
+
+      <ion-item class="input-item">
+        <ion-input type="text" formControlName="email" label="Email" labelPlacement="floating"></ion-input>
+      </ion-item>
+
+      <ion-item class="input-item">
+        <ion-input type="password" formControlName="password" label="Password" labelPlacement="floating"></ion-input>
+      </ion-item>
+
+      <ion-item class="input-item">
+        <ion-input type="password" formControlName="confirmPassword" label="Confirm Password" labelPlacement="floating"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button type="submit">Submit</ion-button>
+  </form>
+</ion-content>

@@ -1,0 +1,19 @@
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title size="large">code-snippets</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <h1 class="title">Code Snippets</h1>
+
+  <ion-list *ngIf="codeSnippets$ | async as codeSnippets">
+    <ion-item *ngFor="let s of codeSnippets">
+      <ion-label>
+        <h2>{{ s.title }}</h2>
+        <p>{{ s.language }}</p>
+        <code>{{ s.code }}</code>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
