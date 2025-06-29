@@ -3,5 +3,6 @@ export interface CodeSnippet {
     title: string;
     language: string;
     code: string;
-    isPrivate: string;
+    is_private: string;
+    user_id: number;
 }

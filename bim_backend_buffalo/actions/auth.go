@@ -2,7 +2,9 @@ package actions
 
 import (
 	"bim_backend_buffalo/models"
+	"database/sql"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,9 +22,27 @@ func Register(c buffalo.Context) error {
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Invalid input"}))
 	}
 
+	tx := c.Value("tx").(*pop.Connection)
+
+	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
+
+	// Check email uniqueness
+	existing := &models.User{}
+	err := tx.Where("email = ?", user.Email).First(existing)
+	if err == nil {
+		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Email already in use"}))
+	}
+	if err != sql.ErrNoRows {
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Database error"}))
+	}
+
 	// Set UserName if null
 	if user.UserName == "" {
 		user.UserName = user.Email
+	}
+
+	if !IsPasswordStrong(user.Password) {
+		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Password must be at least 8 characters and include upper, lower case letters, a number, and a special character(!@#$%^&*()_+-=[]{};:,.<>?)!"}))
 	}
 
 	// Hash password before saving
@@ -31,8 +51,6 @@ func Register(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Failed to hash password"}))
 	}
 	user.Password = hashPw
-
-	tx := c.Value("tx").(*pop.Connection)
 
 	verrs, err := tx.ValidateAndCreate(user)
 	if err != nil {
@@ -113,4 +131,26 @@ func JWTHandler(next buffalo.Handler) buffalo.Handler {
 
 		return next(c)
 	}
+}
+
+func IsPasswordStrong(pw string) bool {
+	if len(pw) < 8 {
+		return false
+	}
+
+	if strings.Contains(pw, " ") {
+		return false
+	}
+
+	var (
+		hasUpper   = regexp.MustCompile(`[A-Z]`)
+		hasLower   = regexp.MustCompile(`[a-z]`)
+		hasNumber  = regexp.MustCompile(`[0-9]`)
+		hasSpecial = regexp.MustCompile(`[!@#\$%\^&\*\(\)_\+\-=\[\]{};:,.<>?]`)
+	)
+
+	return hasUpper.MatchString(pw) &&
+		hasLower.MatchString(pw) &&
+		hasNumber.MatchString(pw) &&
+		hasSpecial.MatchString(pw)
 }

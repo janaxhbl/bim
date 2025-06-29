@@ -103,7 +103,6 @@ func (v CodeSnippetsResource) Show(c buffalo.Context) error {
 	}).Respond(c)
 }
 
-
 // ListByUser gets all CodeSnippets for one user. This function is mapped to the path
 // GET /code_snippets/user/{user_id}
 func (v CodeSnippetsResource) ListByUser(c buffalo.Context) error {
@@ -130,6 +129,12 @@ func (v CodeSnippetsResource) Create(c buffalo.Context) error {
 	if err := c.Bind(codeSnippet); err != nil {
 		return err
 	}
+
+	userID, ok := c.Value("userID").(int)
+	if !ok {
+		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Failed to get userID"}))
+	}
+	codeSnippet.UserID = userID
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -200,6 +205,11 @@ func (v CodeSnippetsResource) Update(c buffalo.Context) error {
 		return err
 	}
 
+	userID, ok := c.Value("userID").(int)
+	if !ok || codeSnippet.UserID != userID {
+		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "You are not allowed to update this code snippet!"}))
+	}
+
 	verrs, err := tx.ValidateAndUpdate(codeSnippet)
 	if err != nil {
 		return err
@@ -250,6 +260,11 @@ func (v CodeSnippetsResource) Destroy(c buffalo.Context) error {
 	// To find the CodeSnippet the parameter code_snippet_id is used.
 	if err := tx.Find(codeSnippet, c.Param("code_snippet_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
+	}
+
+	userID, ok := c.Value("userID").(int)
+	if !ok || codeSnippet.UserID != userID {
+		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "You are not allowed to delete this code snippet!"}))
 	}
 
 	if err := tx.Destroy(codeSnippet); err != nil {

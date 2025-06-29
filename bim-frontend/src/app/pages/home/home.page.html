@@ -5,5 +5,9 @@
     </ion-toolbar>
   </ion-header>
 
-  <h1 class="title">Welcome to BIM!</h1>
+  <div class="title">
+    <h1 *ngIf="currentUser$ | async as user">Hello {{ user.user_name || "Guest" }}!</h1>
+    <h2>Welcome to BIM!</h2>
+    <h4>Your <b>B</b>uggy <b>I</b>ncomplete <b>M</b>ess</h4>
+  </div>
 </ion-content>

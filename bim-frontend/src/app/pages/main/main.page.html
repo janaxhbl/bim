@@ -3,7 +3,8 @@
     <ion-title routerLink="home">BIM</ion-title>
     <ion-buttons slot="end">
       <ion-button routerLink="code-snippets">Snippets</ion-button>
-      <ion-button routerLink="login">Login</ion-button>
+      <ion-button *ngIf="!(isAuthenticated$ | async);" routerLink="login">Login</ion-button>
+      <ion-button *ngIf="isAuthenticated$ | async;" (click)="logout();">Logout</ion-button>
       <!-- <ion-button routerLink="settings">Settings</ion-button> -->
     </ion-buttons>
   </ion-toolbar>

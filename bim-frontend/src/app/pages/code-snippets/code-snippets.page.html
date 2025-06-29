@@ -5,15 +5,118 @@
     </ion-toolbar>
   </ion-header>
 
-  <h1 class="title">Code Snippets</h1>
+  <div id="title-bar">
+    <h1 class="title">Code Snippets</h1>
+    <ion-button id="open-add-modal" fill="outline">
+      add code snippet
+      <ion-icon slot="end" name="add-outline"></ion-icon>
+    </ion-button>
+  </div>
 
-  <ion-list *ngIf="codeSnippets$ | async as codeSnippets">
-    <ion-item *ngFor="let s of codeSnippets">
+  <div id="search-bar">
+    <ion-segment [value]="selectedFilter" (ionChange)="onFilterChange($event)" class="segment-fit-content">
+      <ion-segment-button value="all">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="mine">
+        <ion-label>Mine</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    
+    <ion-searchbar [debounce]="1000" (ionInput)="searchInput($event)"></ion-searchbar>
+  </div>
+
+  <ion-list *ngIf="filteredSnippets$ | async as filteredSnippets">
+    <ion-item *ngFor="let s of filteredSnippets">
       <ion-label>
-        <h2>{{ s.title }}</h2>
+        <h2 class="snippet-title">{{ s.title }}</h2>
         <p>{{ s.language }}</p>
         <code>{{ s.code }}</code>
       </ion-label>
+
+      <ion-buttons slot="end" *ngIf="selectedFilter == 'mine'">
+        <ion-button color="primary" (click)="editSnippet(s)">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="deleteSnippet(s)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-item>
   </ion-list>
+
+  <!-- add modal -->
+  <ion-modal trigger="open-add-modal" (willDismiss)="onWillDismissAdd($event)">
+    <ng-template>
+
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="cancelAdd()">Cancel</ion-button>
+          </ion-buttons>
+
+          <ion-title>Create Snippet</ion-title>
+          
+          <ion-buttons slot="end">
+            <ion-button (click)="confirmAdd()" [strong]="true">Save</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        <form [formGroup]="addFormGroup">
+          <ion-list>
+            <ion-item class="input-item">
+              <ion-input type="text" formControlName="title" label="Title" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item class="input-item">
+              <ion-input type="text" formControlName="language" label="Language" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item class="input-item">
+              <ion-textarea autoGrow="true" formControlName="code" label="Code" labelPlacement="floating" class="monospace-textarea"></ion-textarea>
+            </ion-item>
+          </ion-list>
+        </form>
+      </ion-content>
+      
+    </ng-template>
+  </ion-modal>
+
+  <!-- update modal -->
+  <ion-modal [isOpen]="isUpdateModalOpen">
+    <ng-template>
+
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="cancelUpdate()">Cancel</ion-button>
+          </ion-buttons>
+
+          <ion-title>Update Snippet</ion-title>
+          
+          <ion-buttons slot="end">
+            <ion-button (click)="confirmUpdate()" [strong]="true">Save</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        <form [formGroup]="updateFormGroup">
+          <ion-list>
+            <ion-item class="input-item">
+              <ion-input type="text" formControlName="title" label="Title" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item class="input-item">
+              <ion-input type="text" formControlName="language" label="Language" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item class="input-item">
+              <ion-textarea autoGrow="true" formControlName="code" label="Code" labelPlacement="floating" class="monospace-textarea"></ion-textarea>
+            </ion-item>
+          </ion-list>
+        </form>
+      </ion-content>
+      
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

@@ -47,6 +47,11 @@ export class AuthState {
         return state.token;
     }
 
+    @Selector()
+    static id(state: AuthStateModel): number | null {
+        return state.id;
+    }
+
     @Action(Register)
     register(ctx: StateContext<AuthStateModel>, action: Register) {
         return this.authService.register(action.payload);
@@ -61,9 +66,9 @@ export class AuthState {
                 const id = res.id;
                 ctx.patchState({ token, email, id });
 
-                console.log(ctx.getState());
+                // console.log(ctx.getState());
 
-                localStorage.setItem("token", token);
+                sessionStorage.setItem("token", token);
             })
         )
     }

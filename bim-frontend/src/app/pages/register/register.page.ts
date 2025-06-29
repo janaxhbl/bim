@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators }
 import { Store } from '@ngxs/store';
 import { Register } from '../../store/auth.state';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-register',
@@ -42,7 +43,11 @@ export class RegisterPage implements OnInit {
     ]
   }
 
-  constructor(private store: Store, private router: Router) { }
+  constructor(
+    private store: Store,
+    private router: Router,
+    private notification: NotificationService
+  ) { }
 
   passwordMatchValidator(control:AbstractControl) : ValidationErrors | null  {
     const password = control.get("password")?.value;
@@ -56,7 +61,8 @@ export class RegisterPage implements OnInit {
 
   onSubmit() {
     if (this.registerFormGroup.value.password != this.registerFormGroup.value.confirmPassword) {
-      alert("Password do not match!");
+      this.notification.show("Passwords do not match!", 3000, "danger");
+
       return;
     }
 
@@ -66,10 +72,12 @@ export class RegisterPage implements OnInit {
       password: this.registerFormGroup.value.password!
     })).subscribe({
       next: () => {
-        alert("Registered successfully");
+        this.notification.show("Registered successfully!", 3000, "success");
         this.router.navigate(["login"]);
       },
-      error: (err) => alert("Register failed: " + err.message)
+      error: (err) => {
+        this.notification.show("Register failed: " + err.error.error, 5000, "danger");
+      }
     })
   }
 

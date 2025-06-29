@@ -1,0 +1,30 @@
+#title-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    ion-button {
+        margin-top: 12px;
+        margin-right: 8px;
+    }
+}
+
+#search-bar {
+    display: flex;
+    flex-direction: row;
+}
+
+.segment-fit-content {
+    ion-segment-button {
+        min-width: unset;
+        max-width: fit-content;
+        flex: 0 0 auto;
+    }
+
+    display: inline-flex;
+    max-width: fit-content;
+}
+
+.snippet-title {
+    font-weight: bold;
+}
